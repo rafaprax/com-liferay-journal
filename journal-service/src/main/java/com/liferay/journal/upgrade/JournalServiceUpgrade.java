@@ -42,6 +42,7 @@ import com.liferay.journal.internal.upgrade.v1_1_2.UpgradeCheckIntervalConfigura
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBProcessContext;
+import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
@@ -97,9 +98,10 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 				_defaultDDMStructureHelper, _groupLocalService,
 				_resourceActionLocalService, _resourceActions,
 				_resourceLocalService, _userLocalService),
-			new UpgradeJournalArticles(
-				_assetCategoryLocalService, _ddmStructureLocalService,
-				_groupLocalService, _layoutLocalService),
+			new com.liferay.journal.internal.upgrade.v0_0_5.
+				UpgradeJournalArticles(
+					_assetCategoryLocalService, _ddmStructureLocalService,
+					_groupLocalService, _layoutLocalService),
 			new UpgradeJournalDisplayPreferences(),
 			new UpgradeLastPublishDate(),
 			new UpgradePortletSettings(_settingsFactory),
@@ -151,6 +153,11 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"com.liferay.journal.service", "1.1.1", "1.1.2",
 			new UpgradeCheckIntervalConfiguration(_configurationAdmin));
+
+		registry.register(
+			"com.liferay.journal.service", "1.1.2", "1.1.3",
+			new com.liferay.journal.internal.upgrade.v1_1_3.
+				UpgradeJournalArticles(_companyLocalService, _jsonFactory));
 	}
 
 	protected void deleteTempImages() throws Exception {
@@ -246,6 +253,11 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 	}
 
 	@Reference(unbind = "-")
+	protected void setJSONFactory(JSONFactory jsonFactory) {
+		_jsonFactory = jsonFactory;
+	}
+
+	@Reference(unbind = "-")
 	protected void setLayoutLocalService(
 		LayoutLocalService layoutLocalService) {
 
@@ -301,6 +313,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 	private DLAppLocalService _dlAppLocalService;
 	private GroupLocalService _groupLocalService;
 	private ImageLocalService _imageLocalService;
+	private JSONFactory _jsonFactory;
 	private LayoutLocalService _layoutLocalService;
 	private PrefsProps _prefsProps;
 	private ResourceActionLocalService _resourceActionLocalService;
